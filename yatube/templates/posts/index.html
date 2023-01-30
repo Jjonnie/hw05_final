@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}Последнее обновление на сайте{% endblock %}
+{% block content %}
+{% include 'posts/includes/switcher.html' with index=True %}
+  <div class="container py-5">     
+    <h1>Последние обновления на сайте</h1>
+    {% for post in page_obj %}
+      {% include "includes/post_details.html" with show_link=True %}
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}  
+    {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}
