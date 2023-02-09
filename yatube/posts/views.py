@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
 from django.views.decorators.cache import cache_page
+from .utils import pagination
 
 QUANTUTY_POST_ON_PAGE = 10
 
@@ -11,9 +12,7 @@ QUANTUTY_POST_ON_PAGE = 10
 @cache_page(20, key_prefix='index_page')
 def index(request):
     post_list = Post.objects.all()
-    paginator = Paginator(post_list, QUANTUTY_POST_ON_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = pagination(request, post_list)
     context = {
         'page_obj': page_obj,
     }
@@ -23,9 +22,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     post_list = group.posts.all()
-    paginator = Paginator(post_list, QUANTUTY_POST_ON_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = pagination(request, post_list)
     context = {
         'page_obj': page_obj,
         'group': group,
@@ -36,9 +33,7 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
-    paginator = Paginator(posts, QUANTUTY_POST_ON_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = pagination(request, posts)
     following = request.user.is_authenticated
     if following:
         following = author.following.filter(user=request.user).exists()
@@ -118,9 +113,7 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     posts = Post.objects.filter(author__following__user=request.user)
-    paginator = Paginator(posts, QUANTUTY_POST_ON_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = pagination(request, posts)
     context = {
         'page_obj': page_obj,
         'index': False,
